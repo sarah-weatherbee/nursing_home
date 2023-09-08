@@ -2,4 +2,7 @@ config.py
 __pycache__
 .ipynb_checkpoints
 .DS_Store
-data/
+data_pre_proc
+data_post_proc
+geo_data_pre_proc
+Visuals_Analysis_NH_data_IDA_EDA.ipynb
