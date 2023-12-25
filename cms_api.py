@@ -1,13 +1,13 @@
+# to be run each Tues
+
 import pandas as pd
-import numpy as np
 import requests
 import json
 from pandas.tseries.offsets import Week
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta, MO, SU
-import os
 import time
-import pyarrow
+
 
 url = "https://data.cms.gov/data.json"
 title = "COVID-19 Nursing Home Data"
@@ -23,7 +23,7 @@ for set in dataset:
             if 'format' in distro.keys() and 'description' in distro.keys():
                 if distro['format'] == "API" and distro['description'] == "latest":
                     latest_distro = distro['accessURL']
-                    print(f"The latest data for {title} can be found at {latest_distro} or {set['identifier']}") 
+                    print(f"The latest data for {title} can be found at {latest_distro} or {set['identifier']}")
 
 stats_endpoint = latest_distro + "/stats"
 
@@ -36,26 +36,26 @@ print(f"total rows: {total_rows}")
 
 date_today = date.today()
 end_wk_end_date = date_today - relativedelta(weeks=1, weekday=SU)
-start_wk_end_date = end_wk_end_date - relativedelta(months=4, weekday=SU)
+start_wk_end_date = end_wk_end_date - relativedelta(months=2, weekday=SU)
 week = timedelta(days=7)
 offset = 0
 size = 5000
 
 # while i < total_rows:
-while start_wk_end_date <= end_wk_end_date:   
+while start_wk_end_date <= end_wk_end_date:
     for offset in range(0,total_rows,size):
         offset_url = f"{latest_distro}?filter[week_ending]={start_wk_end_date}&offset={offset}&size={size}"
 
-        
+
         offset_response = requests.request("GET", offset_url)
         data = offset_response.json()
         print(f"Made request for {size} results at offset {offset}")
         if len(data) == 0:
                 break
         latest_data.extend(data)
-        
+
         offset = offset + size
-        
+
         time.sleep(3)
         print("---")
         current_url = f"{latest_distro}?filter[week_ending]={start_wk_end_date}&offset={offset}&size={size}"
@@ -65,5 +65,9 @@ while start_wk_end_date <= end_wk_end_date:
 
 df_latest_data = pd.DataFrame(latest_data)
 print(df_latest_data)
-df_latest_data.to_csv("test.csv", index=False)
+df_latest_data.to_csv("data_pre_proc/nh_pre_proc_raw.csv", index=False)
+
+#save concated as updated parquet file
+#nh_1823_8623.to_parquet('data_pre_proc/nh_all_Jan8_23_Aug6_23_concat.parquet.gzip',
+#                                         compression='gzip')
 
