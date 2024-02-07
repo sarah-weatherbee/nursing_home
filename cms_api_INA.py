@@ -1,4 +1,4 @@
-# to be run each Tues
+# To be run weekly, on Tues. Pulls data from CMS api.
 
 import pandas as pd
 import requests
@@ -7,6 +7,7 @@ from pandas.tseries.offsets import Week
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta, MO, SU
 import time
+import boto3
 
 
 url = "https://data.cms.gov/data.json"
@@ -36,7 +37,9 @@ print(f"total rows: {total_rows}")
 
 date_today = date.today()
 end_wk_end_date = date_today - relativedelta(weeks=1, weekday=SU)
-start_wk_end_date = end_wk_end_date - relativedelta(months=2, weekday=SU)
+
+start_wk_end_date = end_wk_end_date - relativedelta(weeks=8, weekday=SU)
+
 week = timedelta(days=7)
 offset = 0
 size = 5000
@@ -65,9 +68,12 @@ while start_wk_end_date <= end_wk_end_date:
 
 df_latest_data = pd.DataFrame(latest_data)
 print(df_latest_data)
-df_latest_data.to_csv("data_pre_proc/nh_pre_proc_raw.csv", index=False)
+
+#save as csv file
+#df_latest_data.to_csv("data_pre_proc/nh_pre_proc_raw.csv", index=False)
 
 #save concated as updated parquet file
-#nh_1823_8623.to_parquet('data_pre_proc/nh_all_Jan8_23_Aug6_23_concat.parquet.gzip',
-#                                         compression='gzip')
+# df_latest_data.to_parquet('data_pre_proc/nh_all_Jan8_23_Aug6_23_concat.parquet.gzip', compression='gzip')
 
+#save as parquet file
+df_latest_data.to_parquet("data_pre_proc/nh_pre_proc_raw.parquet", engine='auto', compression='snappy', index=None, partition_cols=None)
