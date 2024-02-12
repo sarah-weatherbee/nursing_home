@@ -68,10 +68,10 @@ def extract_cms_data():
         start_wk_end_date = start_wk_end_date + week
 
     df_latest_data = pd.DataFrame(latest_data)
-
+    json_latest_data = latest_data.json()
     #save as parquet file
     df_latest_data_pq = df_latest_data.to_parquet("data_pre_proc/nh_pre_proc_raw.parquet", engine='auto', compression='snappy', index=None, partition_cols=None)
-    return df_latest_data_pq
+    return df_latest_data_pq, json_latest_data
 
 extract_cms_data()
 #save as csv file
