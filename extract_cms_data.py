@@ -25,15 +25,20 @@ def extract_cms_data():
                 if 'format' in distro.keys() and 'description' in distro.keys():
                     if distro['format'] == "API" and distro['description'] == "latest":
                         latest_distro = distro['accessURL']
+                        latest_distro_ep = distro
+                        print(f"distro{distro}")
+                        print(f"latest distro ep {latest_distro_ep}")
                         print(f"The latest data for {title} can be found at {latest_distro} or {set['identifier']}")
 
     stats_endpoint = latest_distro + "/stats"
+    print(f"stats endpoint: {stats_endpoint}")
 
     latest_data = []
     stats_response = requests.request("GET", stats_endpoint)
     stats_response = stats_response.json()
     total_rows = stats_response['total_rows']
-    print(f"total rows: {total_rows}")
+    #print(f"total rows: {total_rows}")
+
 
 
     date_today = date.today()
@@ -45,7 +50,7 @@ def extract_cms_data():
     offset = 0
     size = 5000
 
-    # while i < total_rows:
+
     while start_wk_end_date <= end_wk_end_date:
         for offset in range(0,total_rows,size):
             offset_url = f"{latest_distro}?filter[week_ending]={start_wk_end_date}&offset={offset}&size={size}"
@@ -70,8 +75,8 @@ def extract_cms_data():
     df_latest_data = pd.DataFrame(latest_data)
     json_latest_data = latest_data.json()
     #save as parquet file
-    df_latest_data_pq = df_latest_data.to_parquet("data_pre_proc/nh_pre_proc_raw.parquet", engine='auto', compression='snappy', index=None, partition_cols=None)
-    return df_latest_data_pq, json_latest_data
+    pq_latest_data = df_latest_data.to_parquet("data_pre_proc/nh_pre_proc_raw.parquet", engine='auto', compression='snappy', index=None, partition_cols=None)
+    return df_latest_data, pq_latest_data, json_latest_data
 
 extract_cms_data()
 #save as csv file
