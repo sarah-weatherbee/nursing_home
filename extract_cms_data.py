@@ -2,7 +2,7 @@
 
 import pandas as pd
 import requests
-#import json
+import json
 from pandas.tseries.offsets import Week
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta, MO, SU
@@ -44,7 +44,7 @@ def extract_cms_data():
     date_today = date.today()
     end_wk_end_date = date_today - relativedelta(weeks=1, weekday=SU)
 
-    start_wk_end_date = end_wk_end_date - relativedelta(weeks=3, weekday=SU)
+    start_wk_end_date = end_wk_end_date - relativedelta(weeks=2, weekday=SU)
 
     week = timedelta(days=7)
     offset = 0
@@ -73,10 +73,10 @@ def extract_cms_data():
         start_wk_end_date = start_wk_end_date + week
 
     df_latest_data = pd.DataFrame(latest_data)
-    json_latest_data = latest_data.json()
+    json_latest_data = json.dumps(latest_data)
     #save as parquet file
-    pq_latest_data = df_latest_data.to_parquet("data_pre_proc/nh_pre_proc_raw.parquet", engine='auto', compression='snappy', index=None, partition_cols=None)
-    return df_latest_data, pq_latest_data, json_latest_data
+    #pq_latest_data = df_latest_data.to_parquet("data_pre_proc/nh_pre_proc_raw.parquet", engine='auto', compression='snappy', index=None, partition_cols=None)
+    return df_latest_data,json_latest_data
 
 extract_cms_data()
 #save as csv file

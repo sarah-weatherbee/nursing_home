@@ -1,14 +1,19 @@
 from airflow import DAG
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.operators.python import PythonOperator
 import requests
 import json
+import pandas as pd
+from dateutil.relativedelta import relativedelta, MO, SU
+from pandas.tseries.offsets import Week
+import time
 
+url = "https://data.cms.gov/data.json"
+title = "COVID-19 Nursing Home Data"
 def get_endpoint():
-    url = "https://data.cms.gov/data.json"
-    title = "COVID-19 Nursing Home Data"
+
     response = requests.request("GET",url)
     if response.ok:
         response = response.json()
@@ -21,8 +26,9 @@ def get_endpoint():
                         latest_distro = distro['accessURL']
     return latest_distro
 
-def extract_raw_cms_data():
+def extract_raw_cms_data(latest_distro):
   latest_data = []
+  stats_endpoint = latest_distro + "/stats"
   stats_response = requests.request("GET", stats_endpoint)
   stats_response = stats_response.json()
   total_rows = stats_response['total_rows']
@@ -30,7 +36,7 @@ def extract_raw_cms_data():
 
   date_today = date.today()
   end_wk_end_date = date_today - relativedelta(weeks=1, weekday=SU)
-  start_wk_end_date = end_wk_end_date - relativedelta(weeks=3, weekday=SU)
+  start_wk_end_date = end_wk_end_date - relativedelta(weeks=2, weekday=SU)
   week = timedelta(days=7)
   offset = 0
   size = 5000
@@ -53,10 +59,10 @@ def extract_raw_cms_data():
           start_wk_end_date = start_wk_end_date + week
 
           df_latest_data = pd.DataFrame(latest_data)
-          # json_latest_data = latest_data.json()
+          json_latest_data = json.dumps(latest_data)
           # save as parquet file
           # pq_latest_data = df_latest_data.to_parquet("data_pre_proc/nh_pre_proc_raw.parquet", engine='auto', compression='snappy', index=None, partition_cols=None)
-  return df_latest_data
+  return df_latest_data, json_latest_data
 
 
 
