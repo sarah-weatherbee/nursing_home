@@ -23,6 +23,7 @@ def get_endpoint():
                     if distro['format'] == "API" and distro['description'] == "latest":
                         latest_distro = distro['accessURL']
                         print(f"The latest data for {title} can be found at {latest_distro} or {set['identifier']}")
+                        return latest_distro
 
 def extract_raw_cms_data():
     latest_distro = get_endpoint()
@@ -70,8 +71,8 @@ def transform_cms_data():
     print("WIP it")
 
 def main():
-  get_endpoint()
-  extract_raw_cms_data()
+    get_endpoint()
+    extract_raw_cms_data()
 
 main()
 #save as csv file

@@ -29,7 +29,7 @@ def get_endpoint():
 
     return latest_distro
 
-def extract_raw_cms_data(latest_distro):
+def extract_raw_cms_data():
     latest_distro = get_endpoint()
     stats_endpoint = latest_distro + "/stats"
     print(f"stats endpoint: {stats_endpoint}")
@@ -109,5 +109,5 @@ with DAG('cms_dag',
         # log_response = True
         # )
 
-        # is_cmsnh_api_ready >> extract_raw_cms_data
+        is_cmsnh_api_ready >> extract_raw_cms_data
 
